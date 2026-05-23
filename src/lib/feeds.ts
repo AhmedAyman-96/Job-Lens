@@ -3,18 +3,18 @@ import type { FeedConfig } from "@/types/job";
 export const FEEDS: FeedConfig[] = [
   {
     key: "local-ops",
-    label: "Ops Manager — Egypt",
+    label: "Ops / Management",
     type: "local",
-    description: "Operations Manager roles in Egypt (Alexandria, Cairo)",
-    sources: ["Wuzzuf", "Bayt", "LinkedIn", "Tanqeeb"],
+    description: "Operations & management roles (global remote)",
+    sources: ["Jobicy", "Remotive", "Arbeitnow"],
     keywords: ["operations manager", "operations", "management", "telecom", "saas"],
   },
   {
     key: "local-seo",
-    label: "Digital Growth & SEO — Egypt",
+    label: "Digital Growth & SEO",
     type: "local",
-    description: "SEO, Growth & Marketing roles in Egypt",
-    sources: ["Wuzzuf", "Bayt", "LinkedIn", "Tanqeeb"],
+    description: "SEO, growth & marketing roles (global remote)",
+    sources: ["Jobicy", "Remotive", "Arbeitnow"],
     keywords: ["seo", "digital marketing", "growth", "wordpress", "marketing manager"],
   },
   {
