@@ -38,13 +38,13 @@ class Stmt {
   run(...params: BindParams) {
     if (params.length > 0) this.stmt.bind(params);
     this.stmt.step();
-    this.stmt.free();
-    this.db.save();
+    if (!this.db.inTransaction) this.db.save();
   }
 }
 
 class DatabaseWrapper {
-  private sqlDb: import("sql.js").Database;
+  sqlDb: import("sql.js").Database;
+  inTransaction = false;
 
   constructor(sqlDb: import("sql.js").Database) {
     this.sqlDb = sqlDb;
@@ -68,12 +68,15 @@ class DatabaseWrapper {
   transaction<T extends any[]>(fn: (...args: T) => void) {
     return (...args: T) => {
       this.sqlDb.run("BEGIN");
+      this.inTransaction = true;
       try {
         fn(...args);
+        this.inTransaction = false;
         this.sqlDb.run("COMMIT");
         this.save();
       } catch (e) {
-        this.sqlDb.run("ROLLBACK");
+        this.inTransaction = false;
+        try { this.sqlDb.run("ROLLBACK"); } catch {}
         throw e;
       }
     };
