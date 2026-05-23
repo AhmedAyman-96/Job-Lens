@@ -16,9 +16,6 @@ const STATUS_STYLE: Record<string, string> = {
 const FEED_STYLE: Record<string, string> = {
   "local-ops": "bg-amber-500/15 text-amber-600 dark:text-amber-400",
   "local-seo": "bg-amber-500/15 text-amber-600 dark:text-amber-400",
-  "remote-ops": "bg-teal-500/15 text-teal-600 dark:text-teal-400",
-  "remote-seo": "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
-  "remote-growth": "bg-blue-500/15 text-blue-600 dark:text-blue-400",
 };
 
 interface Props {
@@ -49,9 +46,6 @@ export default function JobCard({ job, onSave, onCycle, onDelete }: Props) {
           {job.source && (
             <span className="text-xs px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-400">{job.source}</span>
           )}
-          {job.is_manual ? (
-            <span className="text-xs px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-400">Manual</span>
-          ) : null}
         </div>
         {job.description && (
           <p className="text-xs text-zinc-400 mt-2 leading-relaxed line-clamp-2">{job.description}</p>
@@ -85,7 +79,7 @@ export default function JobCard({ job, onSave, onCycle, onDelete }: Props) {
           >
             <RefreshCw size={15} />
           </button>
-          {job.is_manual && onDelete && (
+          {onDelete && (
             <button
               onClick={() => onDelete(job.id)}
               className="p-1.5 rounded-lg text-zinc-400 hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-500 transition-all"

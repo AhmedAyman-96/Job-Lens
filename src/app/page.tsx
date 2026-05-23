@@ -13,9 +13,6 @@ const VIEW_TITLES: Record<string, string> = {
   dashboard: "Dashboard",
   "local-ops": "Ops Manager — Egypt",
   "local-seo": "Digital Growth & SEO — Egypt",
-  "remote-ops": "Remote · Ops / Management",
-  "remote-seo": "Remote · Marketing / SEO",
-  "remote-growth": "Remote · Growth / Strategy",
   saved: "Saved Jobs",
   applied: "Applied",
 };
@@ -37,7 +34,7 @@ export default function Home() {
     setAddOpen(true);
   }
 
-  const FEED_VIEWS = ["local-ops","local-seo","remote-ops","remote-seo","remote-growth"];
+  const FEED_VIEWS = ["local-ops","local-seo"];
 
   return (
     <div className="flex min-h-screen">
@@ -63,7 +60,7 @@ export default function Home() {
             <Dashboard setView={setView} onAdd={() => openAdd("local-ops")} refreshKey={refreshKey} />
           )}
           {FEED_VIEWS.includes(view) && (
-            <FeedView key={view} feedKey={view} onAddJob={() => openAdd(view.startsWith("local") ? view : "local-ops")} />
+            <FeedView key={view} feedKey={view} onAddJob={() => openAdd(view)} />
           )}
           {view === "saved" && <PipelineView filter="Saved" icon={<Bookmark size={48} />} emptyMsg="Bookmark any job card to save it here." onRefresh={() => setRefreshKey(k => k+1)} />}
           {view === "applied" && <PipelineView filter="Applied" icon={<Send size={48} />} emptyMsg="Cycle any job's status to Applied to track it here." onRefresh={() => setRefreshKey(k => k+1)} />}

@@ -2,14 +2,13 @@
 import { useTheme } from "./ThemeProvider";
 import { FEEDS } from "@/lib/feeds";
 import {
-  LayoutDashboard, Briefcase, TrendingUp, Globe, Star, MapPin,
+  LayoutDashboard, MapPin, TrendingUp,
   Bookmark, Send, Sun, Moon, Search
 } from "lucide-react";
 import clsx from "clsx";
 
 const ICONS: Record<string, React.FC<any>> = {
   "local-ops": MapPin, "local-seo": TrendingUp,
-  "remote-ops": Briefcase, "remote-seo": Globe, "remote-growth": Star,
 };
 
 interface Props {
@@ -38,12 +37,9 @@ const Item = ({ icon: Icon, label, active, onClick, badge }: any) => (
 
 export default function Sidebar({ view, setView, savedCount }: Props) {
   const { theme, toggle } = useTheme();
-  const local = FEEDS.filter(f => f.type === "local");
-  const remote = FEEDS.filter(f => f.type === "remote");
 
   return (
     <aside className="fixed inset-y-0 left-0 w-60 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col z-50">
-      {/* Logo */}
       <div className="px-5 py-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center gap-3">
         <div className="w-8 h-8 rounded-lg bg-teal-500/15 flex items-center justify-center">
           <Search size={16} className="text-teal-500" />
@@ -54,22 +50,14 @@ export default function Sidebar({ view, setView, savedCount }: Props) {
         </div>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-0.5">
         <Item icon={LayoutDashboard} label="Dashboard" active={view === "dashboard"} onClick={() => setView("dashboard")} />
 
         <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-600 px-3 pt-4 pb-1.5">
-          Egypt Local Jobs
+          Egypt Jobs
         </div>
-        {local.map(f => (
+        {FEEDS.map(f => (
           <Item key={f.key} icon={ICONS[f.key] || MapPin} label={f.label} active={view === f.key} onClick={() => setView(f.key)} />
-        ))}
-
-        <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-600 px-3 pt-4 pb-1.5">
-          More Remote Feeds
-        </div>
-        {remote.map(f => (
-          <Item key={f.key} icon={ICONS[f.key] || Briefcase} label={f.label} active={view === f.key} onClick={() => setView(f.key)} />
         ))}
 
         <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-600 px-3 pt-4 pb-1.5">
@@ -79,7 +67,6 @@ export default function Sidebar({ view, setView, savedCount }: Props) {
         <Item icon={Send} label="Applied" active={view === "applied"} onClick={() => setView("applied")} />
       </nav>
 
-      {/* Footer */}
       <div className="px-3 py-3 border-t border-zinc-200 dark:border-zinc-800">
         <button
           onClick={toggle}

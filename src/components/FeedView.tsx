@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { Job } from "@/types/job";
 import { FEED_MAP } from "@/lib/feeds";
 import JobCard from "./JobCard";
-import { RefreshCw, Plus, MapPin, Wifi, Inbox } from "lucide-react";
+import { RefreshCw, MapPin, Inbox } from "lucide-react";
 import clsx from "clsx";
 
 interface Props {
@@ -20,7 +20,6 @@ export default function FeedView({ feedKey, onAddJob }: Props) {
   const [filter, setFilter] = useState<"All" | "Saved" | "Applied">("All");
   const [search, setSearch] = useState("");
   const feed = FEED_MAP[feedKey];
-  const isLocal = feed?.type === "local";
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -57,22 +56,11 @@ export default function FeedView({ feedKey, onAddJob }: Props) {
 
   return (
     <div>
-      {/* Notice */}
-      {isLocal ? (
-        <div className="flex items-start gap-3 bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 rounded-xl px-4 py-3 text-sm mb-5 leading-relaxed">
-          <MapPin size={15} className="mt-0.5 flex-shrink-0" />
-          <span>Egypt-local jobs from <strong>Wuzzuf</strong>, <strong>Bayt</strong>, <strong>LinkedIn</strong> and <strong>Tanqeeb</strong>. 
-            The server attempts to auto-fetch these — results depend on whether those sites allow server-side access at that moment. 
-            You can also add jobs manually with the <strong>Add Job</strong> button.</span>
-        </div>
-      ) : (
-        <div className="flex items-start gap-3 bg-teal-500/10 border border-teal-500/20 text-teal-600 dark:text-teal-400 rounded-xl px-4 py-3 text-sm mb-5 leading-relaxed">
-          <Wifi size={15} className="mt-0.5 flex-shrink-0" />
-          <span>Live from <strong>Jobicy</strong>, <strong>Remotive</strong>, and <strong>Arbeitnow</strong>. Click <strong>Refresh</strong> to fetch the latest remote roles.</span>
-        </div>
-      )}
+      <div className="flex items-start gap-3 bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 rounded-xl px-4 py-3 text-sm mb-5 leading-relaxed">
+        <MapPin size={15} className="mt-0.5 flex-shrink-0" />
+        <span>Egypt jobs from <strong>LinkedIn</strong> and <strong>Wuzzuf</strong>. Click <strong>Auto-fetch</strong> to refresh, or add jobs manually.</span>
+      </div>
 
-      {/* Filter bar */}
       <div className="flex gap-2 mb-5 flex-wrap items-center">
         <input
           className="flex-1 min-w-40 max-w-xs px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400"
@@ -86,19 +74,18 @@ export default function FeedView({ feedKey, onAddJob }: Props) {
             {f}
           </button>
         ))}
-        {isLocal && onAddJob && (
+        {onAddJob && (
           <button onClick={onAddJob} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-600 text-white text-sm font-medium hover:bg-teal-700 transition-all">
-            <Plus size={14} /> Add Job
+            + Add Job
           </button>
         )}
         <button onClick={fetchFeed} disabled={fetching}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 text-zinc-500 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-50 transition-all">
           <RefreshCw size={14} className={clsx(fetching && "animate-spin")} />
-          {isLocal ? "Auto-fetch" : "Refresh"}
+          Auto-fetch
         </button>
       </div>
 
-      {/* Job list */}
       {loading ? (
         <div className="space-y-3">
           {[1,2,3,4].map(i => (
@@ -114,13 +101,13 @@ export default function FeedView({ feedKey, onAddJob }: Props) {
           <Inbox size={48} className="mx-auto mb-4 opacity-25" />
           <h3 className="font-semibold text-lg text-zinc-700 dark:text-zinc-300 mb-2">No jobs found</h3>
           <p className="text-sm max-w-xs mx-auto leading-relaxed">
-            {isLocal ? "Add jobs manually or click Auto-fetch to try scraping local boards." : "Click Refresh to fetch the latest remote listings."}
+            Click Auto-fetch to pull the latest jobs from LinkedIn and Wuzzuf.
           </p>
         </div>
       ) : (
         <div className="space-y-3">
           {jobs.map(j => (
-            <JobCard key={j.id} job={j} onSave={handleSave} onCycle={handleCycle} onDelete={isLocal ? handleDelete : undefined} />
+            <JobCard key={j.id} job={j} onSave={handleSave} onCycle={handleCycle} onDelete={handleDelete} />
           ))}
         </div>
       )}

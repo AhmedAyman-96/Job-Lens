@@ -1,33 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import {
-  fetchJobicy, fetchRemotive, fetchArbeitnow, fetchWuzzufSitemap, fetchLinkedIn,
+  fetchWuzzufSitemap, fetchLinkedIn,
   dedup, type RawJob
 } from "@/lib/fetchers";
 
 async function getJobsForFeed(feed: string): Promise<RawJob[]> {
   switch (feed) {
-    case "remote-ops":
-      return dedup([
-        ...await fetchJobicy("operations").catch(() => []),
-        ...await fetchJobicy("management").catch(() => []),
-        ...await fetchArbeitnow(["operations manager", "operations director"]).catch(() => []),
-        ...await fetchRemotive("management-finance", "operations manager").catch(() => []),
-      ]);
-    case "remote-seo":
-      return dedup([
-        ...await fetchJobicy("marketing").catch(() => []),
-        ...await fetchJobicy("seo").catch(() => []),
-        ...await fetchArbeitnow(["seo", "digital marketing", "wordpress", "growth marketing"]).catch(() => []),
-        ...await fetchRemotive("marketing", "seo").catch(() => []),
-      ]);
-    case "remote-growth":
-      return dedup([
-        ...await fetchArbeitnow(["growth", "strategy", "business development"]).catch(() => []),
-        ...await fetchJobicy("business").catch(() => []),
-        ...await fetchRemotive("marketing", "growth manager").catch(() => []),
-        ...await fetchRemotive("management-finance", "business development").catch(() => []),
-      ]);
     case "local-ops":
       return dedup([
         ...await fetchLinkedIn("operations manager").catch(() => []),
