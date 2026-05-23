@@ -6,7 +6,7 @@ export const FEEDS: FeedConfig[] = [
     label: "Ops Manager — Egypt",
     type: "local",
     description: "Operations & management roles in Egypt",
-    sources: ["Wuzzuf"],
+    sources: ["LinkedIn", "Wuzzuf"],
     keywords: ["operations manager", "operations", "management"],
   },
   {
@@ -14,7 +14,7 @@ export const FEEDS: FeedConfig[] = [
     label: "Digital Growth & SEO — Egypt",
     type: "local",
     description: "SEO, growth & marketing roles in Egypt",
-    sources: ["Wuzzuf"],
+    sources: ["LinkedIn", "Wuzzuf"],
     keywords: ["seo", "digital marketing", "growth", "social media"],
   },
   {

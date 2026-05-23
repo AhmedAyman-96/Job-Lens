@@ -192,6 +192,59 @@ export async function fetchWuzzufSitemap(keywords: string[]): Promise<RawJob[]> 
   }
 }
 
+/* ── LinkedIn (guest API) ── */
+export async function fetchLinkedIn(keywords: string): Promise<RawJob[]> {
+  try {
+    const url = `https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=${encodeURIComponent(keywords)}&location=Egypt&start=0`;
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0",
+      },
+      next: { revalidate: 3600 },
+    });
+    const html = await res.text();
+
+    const jobs: RawJob[] = [];
+    const cardRegex = /data-entity-urn="urn:li:jobPosting:(\d+)"[^>]*>([\s\S]*?)(?=data-entity-urn="urn:li:jobPosting:|$)/g;
+
+    let cardMatch;
+    while ((cardMatch = cardRegex.exec(html)) !== null) {
+      const id = cardMatch[1];
+      const cardHtml = cardMatch[2];
+
+      const titleMatch = cardHtml.match(/base-search-card__title[^>]*>\s*([^<]+)\s*</);
+      const companyMatch = cardHtml.match(/base-search-card__subtitle[^>]*>[\s\S]*?<a[^>]*>\s*([^<]+)\s*</);
+      const locationMatch = cardHtml.match(/job-search-card__location[^>]*>\s*([^<]+)\s*</);
+      const linkMatch = cardHtml.match(/href="(https:\/\/[^"]+linkedin\.com\/jobs\/view\/[^"]+)"/);
+      const dateMatch = cardHtml.match(/<time[^>]*datetime="([^"]*)"/);
+
+      const title = titleMatch ? titleMatch[1].trim() : "";
+      const company = companyMatch ? companyMatch[1].trim() : "";
+      const location = locationMatch ? locationMatch[1].trim() : "Egypt";
+      const link = linkMatch ? linkMatch[1] : "";
+      const datePosted = dateMatch ? dateMatch[1] : "";
+
+      if (title) {
+        jobs.push({
+          guid: `li-${id}`,
+          title: strip(title),
+          company: strip(company),
+          location: strip(location),
+          link,
+          description: "",
+          date_posted: fdate(datePosted || new Date().toISOString()),
+          source: "LinkedIn",
+        });
+      }
+    }
+
+    return jobs.filter((j) => j.title).slice(0, 25);
+  } catch (e) {
+    console.error("LinkedIn fetch error:", e);
+    return [];
+  }
+}
+
 /* ── dedup ── */
 export function dedup(jobs: RawJob[]): RawJob[] {
   const seen = new Set<string>();
