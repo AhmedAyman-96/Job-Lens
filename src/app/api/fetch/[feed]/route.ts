@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import {
-  fetchJobicy, fetchRemotive, fetchArbeitnow,
+  fetchJobicy, fetchRemotive, fetchArbeitnow, fetchWuzzufSitemap,
   dedup, type RawJob
 } from "@/lib/fetchers";
 
@@ -29,19 +29,13 @@ async function getJobsForFeed(feed: string): Promise<RawJob[]> {
         ...await fetchRemotive("management-finance", "business development").catch(() => []),
       ]);
     case "local-ops":
-      return dedup([
-        ...await fetchJobicy("operations").catch(() => []),
-        ...await fetchJobicy("management").catch(() => []),
-        ...await fetchArbeitnow(["operations manager", "operations director", "Egypt"]).catch(() => []),
-        ...await fetchRemotive("management-finance", "operations manager").catch(() => []),
-      ]);
+      return dedup(
+        await fetchWuzzufSitemap(["operations-manager", "operations-director", "operations"])
+      );
     case "local-seo":
-      return dedup([
-        ...await fetchJobicy("marketing").catch(() => []),
-        ...await fetchJobicy("seo").catch(() => []),
-        ...await fetchArbeitnow(["seo", "digital marketing", "wordpress", "growth marketing", "Egypt"]).catch(() => []),
-        ...await fetchRemotive("marketing", "seo").catch(() => []),
-      ]);
+      return dedup(
+        await fetchWuzzufSitemap(["seo", "digital-marketing", "marketing-manager", "growth", "social-media"])
+      );
     default:
       return [];
   }

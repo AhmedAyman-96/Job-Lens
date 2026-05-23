@@ -104,6 +104,94 @@ export async function fetchArbeitnow(keywords: string[]): Promise<RawJob[]> {
     .filter((j) => j.title);
 }
 
+/* ── Wuzzuf (sitemap-based) ── */
+const EGYPT_CITIES = [
+  "cairo", "giza", "alexandria", "helwan", "port-said", "suez",
+  "luxor", "aswan", "mansoura", "tanta", "zagazig", "ismailia",
+  "fayoum", "beni-suef", "minya", "assiut", "sohag", "qena",
+  "damietta", "6th-of-october", "new-cairo", "new-capital",
+  "sheikh-zayed", "maadi", "heliopolis", "nasr-city", "mohandessin",
+  "zamalek", "dokki", "shubra", "obour", "10th-of-ramadan",
+  "badr", "shorouk", "egypt",
+];
+
+function parseWuzzufSlug(url: string): { title: string; location: string; guid: string } | null {
+  const path = url.split("/jobs/p/")[1];
+  if (!path) return null;
+  const parts = path.split("-");
+  const id = parts[0];
+
+  let locationEnd = parts.length;
+  const locationParts: string[] = [];
+
+  for (let i = parts.length - 1; i > 0; i--) {
+    if (EGYPT_CITIES.includes(parts[i])) {
+      locationParts.unshift(parts[i]);
+      locationEnd = i;
+    } else if (locationParts.length > 0) {
+      break;
+    }
+  }
+
+  const titleParts = parts.slice(1, locationEnd);
+  const title = titleParts
+    .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
+    .join(" ");
+
+  const location = locationParts
+    .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
+    .join(", ");
+
+  return { title, location: location || "Egypt", guid: `wz-${id}` };
+}
+
+let _sitemapCache: { entries: { url: string; lastmod: string }[]; ts: number } | null = null;
+
+async function getWuzzufSitemap() {
+  if (_sitemapCache && Date.now() - _sitemapCache.ts < 3600_000) return _sitemapCache.entries;
+  const res = await fetch("https://wuzzuf.net/sitemap-job-1.xml", {
+    headers: { "User-Agent": "Mozilla/5.0" },
+    next: { revalidate: 3600 },
+  });
+  const xml = await res.text();
+  const entries = [...xml.matchAll(/<url>[\s\S]*?<loc>([^<]+)<\/loc>[\s\S]*?<lastmod>([^<]+)<\/lastmod>[\s\S]*?<\/url>/g)]
+    .map((m) => ({ url: m[1], lastmod: m[2] }));
+  _sitemapCache = { entries, ts: Date.now() };
+  return entries;
+}
+
+export async function fetchWuzzufSitemap(keywords: string[]): Promise<RawJob[]> {
+  try {
+    const entries = await getWuzzufSitemap();
+    const kw = keywords.map((k) => k.toLowerCase());
+
+    return entries
+      .filter((e) => {
+        const slug = e.url.toLowerCase();
+        return kw.some((k) => slug.includes(k));
+      })
+      .sort((a, b) => b.lastmod.localeCompare(a.lastmod))
+      .slice(0, 25)
+      .map((e) => {
+        const parsed = parseWuzzufSlug(e.url);
+        return {
+          guid: parsed?.guid || `wz-${Buffer.from(e.url).toString("base64").substring(0, 16)}`,
+          title: strip(parsed?.title || "Unknown"),
+          company: "",
+          location: parsed?.location || "Egypt",
+          link: e.url,
+          description: "",
+          date_posted: fdate(new Date(e.lastmod).getTime() / 1000),
+          source: "Wuzzuf",
+        };
+      })
+      .filter((j) => j.title && j.title !== "Unknown");
+  } catch (e) {
+    console.error("Wuzzuf sitemap fetch error:", e);
+    return [];
+  }
+}
+
 /* ── dedup ── */
 export function dedup(jobs: RawJob[]): RawJob[] {
   const seen = new Set<string>();

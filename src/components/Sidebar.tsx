@@ -59,7 +59,7 @@ export default function Sidebar({ view, setView, savedCount }: Props) {
         <Item icon={LayoutDashboard} label="Dashboard" active={view === "dashboard"} onClick={() => setView("dashboard")} />
 
         <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-600 px-3 pt-4 pb-1.5">
-          Global Job Feeds
+          Egypt Local Jobs
         </div>
         {local.map(f => (
           <Item key={f.key} icon={ICONS[f.key] || MapPin} label={f.label} active={view === f.key} onClick={() => setView(f.key)} />
