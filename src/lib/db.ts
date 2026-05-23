@@ -95,7 +95,9 @@ let _ready: Promise<DatabaseWrapper> | null = null;
 
 async function initDb(): Promise<DatabaseWrapper> {
   const SQL = await initSqlJs();
-  fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
+  const dir = path.dirname(DB_PATH);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  console.log("[db] SQL.js initialized, DB path:", DB_PATH);
 
   let sqlDb: import("sql.js").Database;
   if (fs.existsSync(DB_PATH)) {

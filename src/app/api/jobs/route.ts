@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 
 export async function GET(req: NextRequest) {
+  try {
   const db = await getDb();
   const { searchParams } = new URL(req.url);
   const feed = searchParams.get("feed");
@@ -29,6 +30,10 @@ export async function GET(req: NextRequest) {
   query += " ORDER BY created_at DESC";
   const jobs = db.prepare(query).all(...params);
   return NextResponse.json({ jobs });
+  } catch (e: any) {
+    console.error("[api/jobs] error:", e?.message, e?.stack);
+    return NextResponse.json({ error: e?.message || "Internal error" }, { status: 500 });
+  }
 }
 
 export async function POST(req: NextRequest) {
